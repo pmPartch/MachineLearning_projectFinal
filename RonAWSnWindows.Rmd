@@ -1,0 +1,89 @@
+---
+title: "RonAWSnWindows"
+author: "Peter Partch"
+date: "January 20, 2016"
+output: html_document
+---
+
+## Summary
+This is a brief description of how to setup a single AWS Windows instance in order to execute R and RStudio for Exploratory work on the Cloud Computing Capstone. We will:
+
+* configure and start an AWS EC2 Windows instance
+* Create a Volume from a snapshot and attach it to the Windows instance
+* install R
+* install RStudio 
+* connect to the Windows instance using Remote Desktop
+
+### Some Warnings and Notes
+
+WARNING: do not leave one of these large instances running for longer than you need (certainly, do not leave it running overnight!).  
+
+## Assumed Knowledge
+
+I assume you are somewhat familiar with AWS. If not, then you might try the following:
+ 
+* Amazon Web Services For Dummies by Bernard Golden
+* [Pluralsight](https://www.pluralsight.com/) has a 10 day free trial and offers many courses on tools and techniques that you might wish to use. Specifically, AWS Developer Fundamentals
+
+## Setup Steps
+
+You will need to create a Volume from a snapshot, create a new EC2 instance, and then attach the volume to the instance.
+NOTE: I assume you have already set your region to N. Virginia (for the US...not sure where your snapshot is overseas, sorry)
+
+1. go to the AWS web site and sign into the AWS console <http://aws.amazon.com/>
+1. click on the EC2 link
+1. Click on the Launch Instance button
+1. select Amazon Windows AMI 64 bit (for me, this is the 5th item down the AMI list). Press the Select button.
+1. I've selected  an instance type that is a bit large, say at least a t2.large. Press Next button
+1. Verify VPC and subnet defaults and press Next
+1. Verify storage and press Next
+1. Name the instance (add a Value to the Key 'Name' tag and press Next (it's always a good idea to name things)
+1. Keep the RDP rule (but change source to My IP and then add:
+    1. Custom TCP for port 8080 and My IP
+    1. HTTP for port 80 and My IP
+    1. HTTPS for port 443 and My IP
+    1. Custom ICMP for Echo Response and My IP (so ping works)
+1. Press Review and Launch
+1. Press Launch and either use existing Key Pair (or create new one) OR specify no key pair and press Launch
+NOTE: you will need a keypair to setup a remote desktop connection  
+
+Now create the volume with the datasets
+
+1. Now go back to the EC2 dashboard (press the little orange box in the upper left of the web page)
+1. select Volume and then press Create Volume
+1. specify the snapshot ID for, in this case, windows: snap-37668b5e
+1. Press the create button
+
+Connect to the Windows instance
+
+1. First, lets just agree that IE with 'enhanced security' is just a pain in the arse. So, I'll first do the following. Disable the ES for IE and then we can install Firefox and then some other tools like R, RStudio, and Filezilla (I use an FTP server to move files back and forth)
+
+1. Open the EC2 dashboard
+1. First, make sure that the instance is running (and you have the keypair file).
+1. select Instances and select your running instance.
+1. Press the Action button and select Get Windows Password (you only need to do this once)
+1. When the dialog pops up press the Browse button and find the *.pem file that was downloaded when you selected your keypair when launching the instance
+1. record the user name and password for later use...
+
+Now attach the volume to the Windows instance
+
+1. after you connect to the Windows instance using Remote Desktop.
+1. right mouse click task bar and select Task Manager
+1. from Run New Task enter Explorer and hit enter key (note, you might have to press the 'More Details' link to see this 'Run new task' menu item)
+1. Select Computer from explorer menu and select Manager
+1. From Server Manager select Tools menu and choose Computer Management
+1. Select Disk Management and right click the Disk (that is not attached) and choose OnLine
+
+How to disable IE 'Enhanced Security' (since it is an pain in the arse)
+
+1. click the 'what used to be the Start button' on the tool bar
+1. open control panel
+1. click on administrative tools
+1. double click server manager
+1. click on Local Server
+1. in the properties window, find IE Enhanced Security Configuration and click on the On link. 
+Select Off and press OK (for admin is good enough)
+You might have to restart or at least restart explorer (to do this, use task manager and find explorer and right click and select restart)
+
+Now you can install R and RStudio along with Filezilla (if you have an FTP server)
+
